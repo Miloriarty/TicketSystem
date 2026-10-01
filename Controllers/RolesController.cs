@@ -13,22 +13,25 @@ public class RolesController : ControllerBase
 {
     private readonly AppDbContext _context;
 
-    public RolesController(AppDbContext context) {
+    public RolesController(AppDbContext context) 
+    {
         _context = context;
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Roles>> GetRoles() {
+    public async Task<IEnumerable<Roles>> GetRoles() 
+    {
         return await _context.Roles.ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<RoleDto>> GetById(int id) {
+    public async Task<ActionResult<RoleDto>> GetById(int id) 
+    {
         var role = await _context.Roles.FindAsync(id);
 
         if (role == null) return NotFound();
 
-        return role.ToDto();
+        return Ok(role.ToDto());
     }
 
     [HttpPost]
@@ -61,6 +64,6 @@ public class RolesController : ControllerBase
         _context.Roles.Entry(role).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         
-        return role.ToDto();
+        return Ok(role.ToDto());
     }
 }

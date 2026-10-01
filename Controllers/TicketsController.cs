@@ -30,7 +30,7 @@ public class TicketsController : ControllerBase
 
         if (ticket == null) return NotFound();
 
-        return ticket.ToDto();
+        return Ok(ticket.ToDto());
     }
 
     [HttpPost]
@@ -64,14 +64,15 @@ public class TicketsController : ControllerBase
         if (dto.Status is not null) ticket.Status = dto.Status;
         if (dto.EmployeeId is not null)  ticket.EmployeeId = dto.EmployeeId!.Value;
         
-        _context.Tickets.Entry(ticket).State = EntityState.Modified;  
-        await _context.SaveChangesAsync();
+        _context.Tickets.Entry(ticket).State = EntityState.Modified;
+        _context.Tickets.Update(ticket);
+        await _context.SaveChangesAsync();  
         
-        return ticket.ToDto();
+        return Ok(ticket.ToDto());
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<TicketDto>> Delete(int id) 
+    public async Task<ActionResult> Delete(int id) 
     {
         var ticket = await _context.Tickets.FindAsync(id);
 

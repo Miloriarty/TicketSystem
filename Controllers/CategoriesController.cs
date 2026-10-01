@@ -30,7 +30,7 @@ public class CategoriesController : ControllerBase
 
         if (category == null) return NotFound();
 
-        return category.ToDto();
+        return Ok(category.ToDto());
     }
 
     [HttpPost]
@@ -51,20 +51,21 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateCategoryDto categoryDto)
+    public async Task<ActionResult<CategoryDto>> Update(int id, UpdateCategoryDto dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category == null) return NotFound();
         
-        if (categoryDto.Name is not null) category.Name = categoryDto.Name;
+        if (dto.Name is not null) category.Name = dto.Name;
         
         _context.Categories.Entry(category).State = EntityState.Modified;
         await _context.SaveChangesAsync();
-        return NoContent();
+        
+        return Ok(category.ToDto());
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteCategory(int id)
+    public async Task<ActionResult> DeleteCategory(int id)
     {
         var category = await _context.Categories.FindAsync(id);
 

@@ -24,17 +24,17 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Employees>> GetById(int id)
+    public async Task<ActionResult<EmployeeDto>> GetById(int id)
     {
         var employee = await _context.Employees.FindAsync(id);
 
         if (employee == null) return NotFound();
 
-        return employee;
+        return Ok(employee.ToDto());
     }
 
     [HttpPost]
-    public async Task<ActionResult<Employees>> Create(CreateEmployeeDto employeeDto)
+    public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto employeeDto)
     {
         var employee = new Employees
         {
@@ -55,7 +55,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, UpdateEmployeeDto dto)
+    public async Task<ActionResult<EmployeeDto>> Update(int id, UpdateEmployeeDto dto)
     {
         var employee = await _context.Employees.FindAsync(id);
 
@@ -65,15 +65,14 @@ public class EmployeesController : ControllerBase
         if (dto.Position is not null) employee.Position = dto.Position;
         if (dto.RoleId is not null) employee.RoleId = dto.RoleId!.Value;
 
-        _context.Employees.Entry(employee).State = EntityState.Modified;
-        _context.Employees.Update(employee);
-
+        _context.Employees.Entry(employee).State = EntityState.Modified; // todo возможно не нужно
         await _context.SaveChangesAsync();
-        return NoContent();
+        
+        return Ok(employee.ToDto());
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEmployee(int id)
+    public async Task<ActionResult> DeleteEmployee(int id)
     {
         var employee = await _context.Employees.FindAsync(id);
 
