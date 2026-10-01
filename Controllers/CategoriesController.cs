@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
+using PracticeProject.Dto.Categories;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -17,39 +18,46 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Categories>> GetCategories()
+    public async Task<IEnumerable<CategoryDto>> GetCategories()
     {
-        return await _context.Categories.ToListAsync();
+        return await _context.Categories.Select(c => c.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Categories>> GetCategory(int id)
+    public async Task<ActionResult<CategoryDto>> GetById(int id)
     {
         var category = await _context.Categories.FindAsync(id);
 
         if (category == null) return NotFound();
 
-        return category;
+        return category.ToDto();
     }
 
     [HttpPost]
-    public async Task<ActionResult<Categories>> CreateCategory(Categories category)
+    public async Task<ActionResult<CategoryDto>> Create(CategoryDto categoryDto)
     {
+        var category = new Categories
+        {
+            Name = categoryDto.Name
+        };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-            nameof(GetCategory),
+            nameof(GetById),
             new { id = category.Id },
             category
         );
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory(int id, Categories category)
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateCategoryDto categoryDto)
     {
-        if (id != category.Id) return BadRequest();
-
+        var category = await _context.Categories.FindAsync(id);
+        if (category == null) return NotFound();
+        
+        if (categoryDto.Name is not null) category.Name = categoryDto.Name;
+        
         _context.Categories.Entry(category).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         return NoContent();

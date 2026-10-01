@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Entity;
+using PracticeProject.Dto.Employee;
 
 namespace PracticeProject.Controllers;
 
@@ -17,13 +18,13 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Employees>> GetEmployees()
+    public async Task<IEnumerable<EmployeeDto>> GetEmployees()
     {
-        return await _context.Employees.ToListAsync();
+        return await _context.Employees.Select(e => e.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Employees>> GetEmployee(int id)
+    public async Task<ActionResult<Employees>> GetById(int id)
     {
         var employee = await _context.Employees.FindAsync(id);
 
@@ -33,22 +34,36 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Employees>> CreateEmployee(Employees employee)
+    public async Task<ActionResult<Employees>> Create(CreateEmployeeDto employeeDto)
     {
+        var employee = new Employees
+        {
+            FullName = employeeDto.FullName,
+            Position = employeeDto.Position,
+            RoleId = employeeDto.RoleId,
+            StartDate = employeeDto.StartDate,
+        };
+        
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-            nameof(GetEmployees),
+            nameof(GetById),
             new { id = employee.Id },
-            employee
+            employeeDto
         );
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEmployee(int id, Employees employee)
+    public async Task<IActionResult> Update(int id, UpdateEmployeeDto dto)
     {
-        if (id != employee.Id) return BadRequest();
+        var employee = await _context.Employees.FindAsync(id);
+
+        if (employee == null) return NotFound();
+
+        if (dto.FullName is not null) employee.FullName = dto.FullName;
+        if (dto.Position is not null) employee.Position = dto.Position;
+        if (dto.RoleId is not null) employee.RoleId = dto.RoleId!.Value;
 
         _context.Employees.Entry(employee).State = EntityState.Modified;
         _context.Employees.Update(employee);

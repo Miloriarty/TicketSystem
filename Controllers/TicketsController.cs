@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
+using PracticeProject.Dto.Tickets;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -17,42 +18,61 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Tickets>> GetTickets() {
-        return await _context.Tickets.ToListAsync();
+    public async Task<IEnumerable<TicketDto>> GetTickets() 
+    {
+        return await _context.Tickets.Select(t => t.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Tickets>> GetTicket(int id) {
+    public async Task<ActionResult<TicketDto>> GetById(int id) 
+    {
         var ticket = await _context.Tickets.FindAsync(id);
 
         if (ticket == null) return NotFound();
 
-        return ticket;
+        return ticket.ToDto();
     }
 
     [HttpPost]
-    public async Task<ActionResult<Tickets>> CreateTicket(Tickets ticket) {
+    public async Task<ActionResult<TicketDto>> Create(CreateTicketDto dto)
+    {
+        var ticket = new Tickets
+        {
+            Description = dto.Description,
+            Status = dto.Status,
+            CreatedAt = DateTime.Now,
+            EmployeeId = dto.EmployeeId,
+        };
+        
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-                nameof(GetTicket),
-                new {id = ticket.Id},
-                ticket
+            nameof(GetById),
+            new {id = ticket.Id},
+            ticket
         );
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Tickets>> UpdateTicket(int id, Tickets ticket) {
-        if (id != ticket.Id) return BadRequest();
-
+    public async Task<ActionResult<TicketDto>> Update(int id, UpdateTicketDto dto)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null) return NotFound();
+        
+        if (dto.Description is not null) ticket.Description = dto.Description;
+        if (dto.Status is not null) ticket.Status = dto.Status;
+        if (dto.EmployeeId is not null)  ticket.EmployeeId = dto.EmployeeId!.Value;
+        
         _context.Tickets.Entry(ticket).State = EntityState.Modified;  
         await _context.SaveChangesAsync();
-        return NoContent();
+        
+        return ticket.ToDto();
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Tickets>> DeleteTicket(int id) {
+    public async Task<ActionResult<TicketDto>> Delete(int id) 
+    {
         var ticket = await _context.Tickets.FindAsync(id);
 
         if (ticket == null) return NotFound();

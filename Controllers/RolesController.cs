@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
+using PracticeProject.Dto.Roles;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -22,23 +23,44 @@ public class RolesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Roles>> GetRole(int id) {
+    public async Task<ActionResult<RoleDto>> GetById(int id) {
         var role = await _context.Roles.FindAsync(id);
 
         if (role == null) return NotFound();
 
-        return role;
+        return role.ToDto();
     }
 
     [HttpPost]
-    public async Task<ActionResult<Roles>> CreateRole(Roles role) {
+    public async Task<ActionResult<RoleDto>> Create(CreateRoleDto dto)
+    {
+        var role = new Roles
+        {
+            Name = dto.Name
+        };
+        
         _context.Roles.Add(role);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-            nameof(GetRole), 
+            nameof(GetById), 
             new {id = role.Id},
-            role
+            dto
         );
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<RoleDto>> Update(int id, UpdateRoleDto dto)
+    {
+        var role = await _context.Roles.FindAsync(id);
+
+        if (role == null) return NotFound();
+
+        if (dto.Name is not null) role.Name = dto.Name;
+
+        _context.Roles.Entry(role).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        
+        return role.ToDto();
     }
 }

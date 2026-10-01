@@ -20,4 +20,4 @@ dll/
 Thumbs.db
 
 appsettings.json
-.http
+*.http
