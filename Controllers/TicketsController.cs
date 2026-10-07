@@ -40,7 +40,7 @@ public class TicketsController : ControllerBase
         {
             Description = dto.Description,
             Status = dto.Status,
-            CreatedAt = DateTime.Now,
+            CreatedAt = DateTime.UtcNow,
             EmployeeId = dto.EmployeeId,
         };
         
@@ -50,11 +50,11 @@ public class TicketsController : ControllerBase
         return CreatedAtAction(
             nameof(GetById),
             new {id = ticket.Id},
-            ticket
+            dto
         );
     }
 
-    [HttpPut("{id}")]
+    [HttpPatch("{id}")]
     public async Task<ActionResult<TicketDto>> Update(int id, UpdateTicketDto dto)
     {
         var ticket = await _context.Tickets.FindAsync(id);

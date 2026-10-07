@@ -54,7 +54,7 @@ public class EmployeesController : ControllerBase
         );
     }
 
-    [HttpPut("{id}")]
+    [HttpPatch("{id}")]
     public async Task<ActionResult<EmployeeDto>> Update(int id, UpdateEmployeeDto dto)
     {
         var employee = await _context.Employees.FindAsync(id);

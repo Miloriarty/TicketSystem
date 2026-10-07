@@ -34,7 +34,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> Create(CategoryDto categoryDto)
+    public async Task<ActionResult<CategoryDto>> Create(CreateCategoryDto categoryDto)
     {
         var category = new Categories
         {
@@ -46,7 +46,7 @@ public class CategoriesController : ControllerBase
         return CreatedAtAction(
             nameof(GetById),
             new { id = category.Id },
-            category
+            categoryDto
         );
     }
 
@@ -65,7 +65,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteCategory(int id)
+    public async Task<ActionResult> Delete(int id)
     {
         var category = await _context.Categories.FindAsync(id);
 

@@ -19,9 +19,9 @@ public class RolesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<Roles>> GetRoles() 
+    public async Task<IEnumerable<RoleDto>> GetRoles() 
     {
-        return await _context.Roles.ToListAsync();
+        return await _context.Roles.Select(r => r.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
