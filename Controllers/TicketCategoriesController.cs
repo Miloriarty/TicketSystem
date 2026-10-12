@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.TicketCategories;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -18,13 +18,13 @@ public class TicketCategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TicketCategoriesDto>> GetTicketCategories()
+    public async Task<IEnumerable<TicketCategoryDto>> GetTicketCategories()
     {
         return await _context.TicketCategories.Select(tc => tc.ToDto()).ToListAsync();
     }
     
     [HttpGet("{id}")]
-    public async Task<ActionResult<TicketCategoriesDto>> GetById(int id) {
+    public async Task<ActionResult<TicketCategoryDto>> GetById(int id) {
         var ticketCategory = await _context.TicketCategories.FindAsync(id);
 
         if (ticketCategory == null) return NotFound();
@@ -33,7 +33,7 @@ public class TicketCategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TicketCategoriesDto>> Create(CreateTicketCategoriesDto dto) {
+    public async Task<ActionResult<TicketCategoryDto>> Create(TicketCategoryDto dto) {
         var ticketCategory = new TicketCategories {
             TicketId = dto.TicketId,
             CategoryId = dto.CategoryId,
@@ -45,13 +45,14 @@ public class TicketCategoriesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new {id = dto.TicketId}, ticketCategory);
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<TicketCategoriesDto>> Update(int id, UpdateTicketCategoriesDto dto) {
+    [HttpPut("{id}")]
+    public async Task<ActionResult<TicketCategoryDto>> Update(int id, TicketCategoryDto dto) {
         var ticketCategory = await _context.TicketCategories.FindAsync(id);
 
         if (ticketCategory == null) return NotFound();
-
-        if (dto.CategoryId is not null) ticketCategory.CategoryId = dto.CategoryId!.Value;
+        
+        ticketCategory.CategoryId = dto.CategoryId;
+        ticketCategory.TicketId = dto.TicketId;
         
         await _context.SaveChangesAsync();
 

@@ -1,6 +1,6 @@
 # PracticeProject - API Управления Заявками (Ticketing System)
 
-Бэкенд-приложение на базе **ASP.NET Core Web API** и **Entity Framework Core**, предназначенное для управления заявками (tickets), сотрудниками, ролями и категориями с поддержкой гибких связей многие-ко-многим (many-to-many)
+Бэкенд на базе **ASP.NET Core Web API** и **Entity Framework Core**, предназначенное для управления заявками (tickets), сотрудниками, ролями и категориями
 
 ## Технологический стек
 - **Platform:** .NET 10
@@ -9,10 +9,10 @@
 - **Database:** PostgreSQL
 
 ## Структура проекта
-- `Controllers/` - REST API контроллеры (`Categories`, `Employees`, `Tickets`, `Roles` и др.)
+- `Controllers/` - REST API контроллеры (`Categories`, `Employees`, `Tickets`, `Roles`, остальные пока не работают)
 - `Data/` - Контекст базы данных (`AppDbContext.cs`) с настройками связей через Fluent API.
 - `Dto/` - Модели передачи данных (DTO) и мапперы для сущностей.
-- `Entity` - Доменные модели базы данных.
+- `Entity` - Модели базы данных.
 - `Migrations/` - Миграции Entity Framework Core.
 
 ## Системные требования

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.Categories;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -34,7 +34,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> Create(CreateCategoryDto categoryDto)
+    public async Task<ActionResult<CategoryDto>> Create(CategoryDto categoryDto)
     {
         var category = new Categories
         {
@@ -50,15 +50,14 @@ public class CategoriesController : ControllerBase
         );
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<CategoryDto>> Update(int id, UpdateCategoryDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CategoryDto>> Update(int id, CategoryDto dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category == null) return NotFound();
         
-        if (dto.Name is not null) category.Name = dto.Name;
+        category.Name = dto.Name;
         
-        _context.Categories.Entry(category).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         
         return Ok(category.ToDto());

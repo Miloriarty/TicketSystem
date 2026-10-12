@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Entity;
-using PracticeProject.Dto.Employee;
+using PracticeProject.Dto;
 
 namespace PracticeProject.Controllers;
 
@@ -34,7 +34,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto employeeDto)
+    public async Task<ActionResult<EmployeeDto>> Create(EmployeeDto employeeDto)
     {
         var employee = new Employees
         {
@@ -54,18 +54,16 @@ public class EmployeesController : ControllerBase
         );
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<EmployeeDto>> Update(int id, UpdateEmployeeDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<EmployeeDto>> Update(int id, EmployeeDto dto)
     {
         var employee = await _context.Employees.FindAsync(id);
-
         if (employee == null) return NotFound();
+        
+        employee.FullName = dto.FullName;
+        employee.Position = dto.Position;
+        employee.RoleId = dto.RoleId;
 
-        if (dto.FullName is not null) employee.FullName = dto.FullName;
-        if (dto.Position is not null) employee.Position = dto.Position;
-        if (dto.RoleId is not null) employee.RoleId = dto.RoleId!.Value;
-
-        _context.Employees.Entry(employee).State = EntityState.Modified; // todo возможно не нужно
         await _context.SaveChangesAsync();
         
         return Ok(employee.ToDto());

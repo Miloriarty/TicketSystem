@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.EmployeeCategories;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 
@@ -19,13 +19,13 @@ public class EmployeeCategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<EmployeeCategoriesDto>> GetEmployeeCategories()
+    public async Task<IEnumerable<EmployeeCategoryDto>> GetEmployeeCategories()
     {
         return await _context.EmployeeCategories.Select(ec => ec.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<EmployeeCategoriesDto>> GetById(int id)
+    public async Task<ActionResult<EmployeeCategoryDto>> GetById(int id)
     {
         var employeeCategory = await _context.EmployeeCategories.FindAsync(id);
 
@@ -35,7 +35,7 @@ public class EmployeeCategoriesController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<EmployeeCategoriesDto>> Create(CreateEmployeeCategoriesDto dto)
+    public async Task<ActionResult<EmployeeCategoryDto>> Create(EmployeeCategoryDto dto)
     {
         var employeeCategory = new EmployeeCategories
         {
@@ -53,15 +53,15 @@ public class EmployeeCategoriesController : ControllerBase
         );
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<EmployeeCategoriesDto>> Update(int id, UpdateEmployeeCategoriesDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<EmployeeCategoryDto>> Update(int id, EmployeeCategoryDto dto)
     {
         var employeeCategory = await _context.EmployeeCategories.FindAsync(id);
-
         if (employeeCategory == null) return NotFound();
-
-        if (dto.CategoryId != null) employeeCategory.CategoryId = dto.CategoryId!.Value;
-
+        
+        employeeCategory.EmployeeId = dto.EmployeeId;
+        employeeCategory.CategoryId = dto.CategoryId;
+        
         await _context.SaveChangesAsync();
 
         return Ok(employeeCategory.ToDto());

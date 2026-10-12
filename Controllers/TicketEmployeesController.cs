@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.TicketEmployees;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -18,13 +18,13 @@ public class TicketEmployeesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TicketEmployeesDto>> GetTicketEmployees()
+    public async Task<IEnumerable<TicketEmployeeDto>> GetTicketEmployees()
     {
         return await _context.TicketEmployees.Select(te => te.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TicketEmployeesDto>> GetById(int id)
+    public async Task<ActionResult<TicketEmployeeDto>> GetById(int id)
     {
         var ticketEmployee = await _context.TicketEmployees.FindAsync(id);
 
@@ -34,7 +34,7 @@ public class TicketEmployeesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TicketEmployeesDto>> Create(CreateTicketEmployeeDto dto)
+    public async Task<ActionResult<TicketEmployeeDto>> Create(TicketEmployeeDto dto)
     {
         var ticketEmployee = new TicketEmployees
         {

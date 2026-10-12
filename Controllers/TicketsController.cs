@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.Tickets;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -34,7 +34,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TicketDto>> Create(CreateTicketDto dto)
+    public async Task<ActionResult<TicketDto>> Create(TicketDto dto)
     {
         var ticket = new Tickets
         {
@@ -54,18 +54,17 @@ public class TicketsController : ControllerBase
         );
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<TicketDto>> Update(int id, UpdateTicketDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<TicketDto>> Update(int id, TicketDto dto)
     {
         var ticket = await _context.Tickets.FindAsync(id);
         if (ticket == null) return NotFound();
         
-        if (dto.Description is not null) ticket.Description = dto.Description;
-        if (dto.Status is not null) ticket.Status = dto.Status;
-        if (dto.EmployeeId is not null)  ticket.EmployeeId = dto.EmployeeId!.Value;
+        ticket.Description = dto.Description;
+        ticket.Status = dto.Status;
+        ticket.CreatedAt = DateTime.UtcNow;
+        ticket.EmployeeId = dto.EmployeeId;
         
-        _context.Tickets.Entry(ticket).State = EntityState.Modified;
-        _context.Tickets.Update(ticket);
         await _context.SaveChangesAsync();  
         
         return Ok(ticket.ToDto());

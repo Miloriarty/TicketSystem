@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
-using PracticeProject.Dto.Roles;
+using PracticeProject.Dto;
 using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
@@ -35,7 +35,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<RoleDto>> Create(CreateRoleDto dto)
+    public async Task<ActionResult<RoleDto>> Create(RoleDto dto)
     {
         var role = new Roles
         {
@@ -52,18 +52,16 @@ public class RolesController : ControllerBase
         );
     }
 
-    [HttpPatch("{id}")]
-    public async Task<ActionResult<RoleDto>> Update(int id, UpdateRoleDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<RoleDto>> Update(int id, RoleDto dto)
     {
         var role = await _context.Roles.FindAsync(id);
 
         if (role == null) return NotFound();
-
-        if (dto.Name is not null) role.Name = dto.Name;
-
-        _context.Roles.Entry(role).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
         
+        role.Name = dto.Name;
+        
+        await _context.SaveChangesAsync();
         return Ok(role.ToDto());
     }
 }
