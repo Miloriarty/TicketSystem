@@ -1,6 +1,6 @@
-# PracticeProject - API Управления Заявками (Ticketing System)
+# PracticeProject - API Управления Заявками
 
-Бэкенд на базе **ASP.NET Core Web API** и **Entity Framework Core**, предназначенное для управления заявками (tickets), сотрудниками, ролями и категориями
+Бэкенд на базе **ASP.NET Core Web API** и **Entity Framework Core**, предназначен для управления заявками (tickets), сотрудниками, ролями и категориями
 
 ## Технологический стек
 - **Platform:** .NET 10
