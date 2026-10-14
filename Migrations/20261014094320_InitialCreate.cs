@@ -39,6 +39,21 @@ namespace PracticeProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tickets",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tickets", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employees",
                 columns: table => new
                 {
@@ -61,103 +76,86 @@ namespace PracticeProject.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmployeeCategories",
+                name: "CategoriesTickets",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false)
+                    CategoriesId = table.Column<int>(type: "integer", nullable: false),
+                    TicketsId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmployeeCategories", x => new { x.EmployeeId, x.CategoryId });
+                    table.PrimaryKey("PK_CategoriesTickets", x => new { x.CategoriesId, x.TicketsId });
                     table.ForeignKey(
-                        name: "FK_EmployeeCategories_Categories_CategoryId",
-                        column: x => x.CategoryId,
+                        name: "FK_CategoriesTickets_Categories_CategoriesId",
+                        column: x => x.CategoriesId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EmployeeCategories_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Tickets",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    EmployeeId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tickets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Tickets_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TicketCategories",
-                columns: table => new
-                {
-                    TicketId = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TicketCategories", x => new { x.TicketId, x.CategoryId });
-                    table.ForeignKey(
-                        name: "FK_TicketCategories_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TicketCategories_Tickets_TicketId",
-                        column: x => x.TicketId,
+                        name: "FK_CategoriesTickets_Tickets_TicketsId",
+                        column: x => x.TicketsId,
                         principalTable: "Tickets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "TicketEmployees",
+                name: "CategoriesEmployees",
                 columns: table => new
                 {
-                    TicketId = table.Column<int>(type: "integer", nullable: false),
-                    EmployeeId = table.Column<int>(type: "integer", nullable: false)
+                    CategoriesId = table.Column<int>(type: "integer", nullable: false),
+                    EmployeesId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TicketEmployees", x => new { x.TicketId, x.EmployeeId });
+                    table.PrimaryKey("PK_CategoriesEmployees", x => new { x.CategoriesId, x.EmployeesId });
                     table.ForeignKey(
-                        name: "FK_TicketEmployees_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
+                        name: "FK_CategoriesEmployees_Categories_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoriesEmployees_Employees_EmployeesId",
+                        column: x => x.EmployeesId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeesTickets",
+                columns: table => new
+                {
+                    EmployeesId = table.Column<int>(type: "integer", nullable: false),
+                    TicketsId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeesTickets", x => new { x.EmployeesId, x.TicketsId });
+                    table.ForeignKey(
+                        name: "FK_EmployeesTickets_Employees_EmployeesId",
+                        column: x => x.EmployeesId,
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TicketEmployees_Tickets_TicketId",
-                        column: x => x.TicketId,
+                        name: "FK_EmployeesTickets_Tickets_TicketsId",
+                        column: x => x.TicketsId,
                         principalTable: "Tickets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeeCategories_CategoryId",
-                table: "EmployeeCategories",
-                column: "CategoryId");
+                name: "IX_CategoriesEmployees_EmployeesId",
+                table: "CategoriesEmployees",
+                column: "EmployeesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CategoriesTickets_TicketsId",
+                table: "CategoriesTickets",
+                column: "TicketsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_RoleId",
@@ -165,41 +163,31 @@ namespace PracticeProject.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TicketCategories_CategoryId",
-                table: "TicketCategories",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TicketEmployees_EmployeeId",
-                table: "TicketEmployees",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tickets_EmployeeId",
-                table: "Tickets",
-                column: "EmployeeId");
+                name: "IX_EmployeesTickets_TicketsId",
+                table: "EmployeesTickets",
+                column: "TicketsId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "EmployeeCategories");
+                name: "CategoriesEmployees");
 
             migrationBuilder.DropTable(
-                name: "TicketCategories");
+                name: "CategoriesTickets");
 
             migrationBuilder.DropTable(
-                name: "TicketEmployees");
+                name: "EmployeesTickets");
 
             migrationBuilder.DropTable(
                 name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Tickets");
+                name: "Employees");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Tickets");
 
             migrationBuilder.DropTable(
                 name: "Roles");

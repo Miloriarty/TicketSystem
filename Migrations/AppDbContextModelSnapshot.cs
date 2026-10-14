@@ -22,6 +22,51 @@ namespace PracticeProject.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CategoriesEmployees", b =>
+                {
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EmployeesId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CategoriesId", "EmployeesId");
+
+                    b.HasIndex("EmployeesId");
+
+                    b.ToTable("CategoriesEmployees");
+                });
+
+            modelBuilder.Entity("CategoriesTickets", b =>
+                {
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TicketsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CategoriesId", "TicketsId");
+
+                    b.HasIndex("TicketsId");
+
+                    b.ToTable("CategoriesTickets");
+                });
+
+            modelBuilder.Entity("EmployeesTickets", b =>
+                {
+                    b.Property<int>("EmployeesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TicketsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EmployeesId", "TicketsId");
+
+                    b.HasIndex("TicketsId");
+
+                    b.ToTable("EmployeesTickets");
+                });
+
             modelBuilder.Entity("PracticeProject.Entity.Categories", b =>
                 {
                     b.Property<int>("Id")
@@ -37,21 +82,6 @@ namespace PracticeProject.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.EmployeeCategories", b =>
-                {
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EmployeeId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("EmployeeCategories");
                 });
 
             modelBuilder.Entity("PracticeProject.Entity.Employees", b =>
@@ -100,36 +130,6 @@ namespace PracticeProject.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("PracticeProject.Entity.TicketCategories", b =>
-                {
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TicketId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("TicketCategories");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.TicketEmployees", b =>
-                {
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("TicketId", "EmployeeId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("TicketEmployees");
-                });
-
             modelBuilder.Entity("PracticeProject.Entity.Tickets", b =>
                 {
                     b.Property<int>("Id")
@@ -145,37 +145,58 @@ namespace PracticeProject.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
-
                     b.ToTable("Tickets");
                 });
 
-            modelBuilder.Entity("PracticeProject.Entity.EmployeeCategories", b =>
+            modelBuilder.Entity("CategoriesEmployees", b =>
                 {
-                    b.HasOne("PracticeProject.Entity.Categories", "Category")
-                        .WithMany("EmployeeCategories")
-                        .HasForeignKey("CategoryId")
+                    b.HasOne("PracticeProject.Entity.Categories", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PracticeProject.Entity.Employees", "Employee")
-                        .WithMany("EmployeeCategories")
-                        .HasForeignKey("EmployeeId")
+                    b.HasOne("PracticeProject.Entity.Employees", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CategoriesTickets", b =>
+                {
+                    b.HasOne("PracticeProject.Entity.Categories", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.HasOne("PracticeProject.Entity.Tickets", null)
+                        .WithMany()
+                        .HasForeignKey("TicketsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Employee");
+            modelBuilder.Entity("EmployeesTickets", b =>
+                {
+                    b.HasOne("PracticeProject.Entity.Employees", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PracticeProject.Entity.Tickets", null)
+                        .WithMany()
+                        .HasForeignKey("TicketsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PracticeProject.Entity.Employees", b =>
@@ -189,81 +210,9 @@ namespace PracticeProject.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("PracticeProject.Entity.TicketCategories", b =>
-                {
-                    b.HasOne("PracticeProject.Entity.Categories", "Category")
-                        .WithMany("TicketCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PracticeProject.Entity.Tickets", "Ticket")
-                        .WithMany("TicketCategories")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Ticket");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.TicketEmployees", b =>
-                {
-                    b.HasOne("PracticeProject.Entity.Employees", "Employee")
-                        .WithMany("TicketEmployees")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PracticeProject.Entity.Tickets", "Ticket")
-                        .WithMany("TicketEmployees")
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("Ticket");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.Tickets", b =>
-                {
-                    b.HasOne("PracticeProject.Entity.Employees", "Employee")
-                        .WithMany("Tickets")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.Categories", b =>
-                {
-                    b.Navigation("EmployeeCategories");
-
-                    b.Navigation("TicketCategories");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.Employees", b =>
-                {
-                    b.Navigation("EmployeeCategories");
-
-                    b.Navigation("TicketEmployees");
-
-                    b.Navigation("Tickets");
-                });
-
             modelBuilder.Entity("PracticeProject.Entity.Roles", b =>
                 {
                     b.Navigation("Employees");
-                });
-
-            modelBuilder.Entity("PracticeProject.Entity.Tickets", b =>
-                {
-                    b.Navigation("TicketCategories");
-
-                    b.Navigation("TicketEmployees");
                 });
 #pragma warning restore 612, 618
         }

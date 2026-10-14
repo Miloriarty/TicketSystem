@@ -10,7 +10,7 @@ public class Employees
     public required int RoleId { get; set; }
     public Roles Role { get; set; } = null!;
 
-    public ICollection<EmployeeCategories> EmployeeCategories { get; set; } = [];
-    public ICollection<TicketEmployees> TicketEmployees { get; set; } = [];
+    public ICollection<Categories> Categories { get; set; } = [];
+
     public ICollection<Tickets> Tickets { get; set; } = [];
 }

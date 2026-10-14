@@ -7,7 +7,9 @@ public record EmployeeDto(
     string FullName,
     string Position,
     DateTime StartDate,
-    int RoleId
+    int RoleId,
+    ICollection<int> CategoriesId,
+    ICollection<int> TicketsId
 );
 
 public static class EmployeeMapper
@@ -19,7 +21,9 @@ public static class EmployeeMapper
             employee.FullName,
             employee.Position,
             employee.StartDate,
-            employee.RoleId
+            employee.RoleId,
+            employee.Categories.Select(c => c.Id).ToList(),
+            employee.Tickets.Select(t => t.Id).ToList()
         );
     }
 }

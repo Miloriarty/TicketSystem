@@ -20,28 +20,45 @@ public class EmployeesController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<EmployeeDto>> GetEmployees()
     {
-        return await _context.Employees.Select(e => e.ToDto()).ToListAsync();
+        var employees = await _context
+            .Employees
+            .Include(e => e.Categories)
+            .Include(t => t.Tickets)
+            .ToListAsync();
+        
+        return employees.Select(e => e.ToDto()).ToList();
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<EmployeeDto>> GetById(int id)
     {
-        var employee = await _context.Employees.FindAsync(id);
-
+        var employee = await _context
+            .Employees
+            .Include(e => e.Categories)
+            .Include(t => t.Tickets)
+            .FirstOrDefaultAsync(e => e.Id == id);
+        
         if (employee == null) return NotFound();
 
         return Ok(employee.ToDto());
     }
 
     [HttpPost]
-    public async Task<ActionResult<EmployeeDto>> Create(EmployeeDto employeeDto)
+    public async Task<ActionResult<EmployeeDto>> Create(EmployeeDto dto)
     {
+        var categories = await _context
+            .Categories
+            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .ToListAsync();
+        
         var employee = new Employees
         {
-            FullName = employeeDto.FullName,
-            Position = employeeDto.Position,
-            RoleId = employeeDto.RoleId,
-            StartDate = employeeDto.StartDate,
+            FullName = dto.FullName,
+            Position = dto.Position,
+            RoleId = dto.RoleId,
+            StartDate = dto.StartDate,
+            Categories = categories,
+            Tickets = []
         };
         
         _context.Employees.Add(employee);
@@ -50,7 +67,7 @@ public class EmployeesController : ControllerBase
         return CreatedAtAction(
             nameof(GetById),
             new { id = employee.Id },
-            employeeDto
+            dto
         );
     }
 
@@ -60,9 +77,21 @@ public class EmployeesController : ControllerBase
         var employee = await _context.Employees.FindAsync(id);
         if (employee == null) return NotFound();
         
+        var categories = await _context
+            .Categories
+            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .ToListAsync();
+
+        var tickets = await _context
+            .Tickets
+            .Where(t => dto.TicketsId.Contains(t.Id))
+            .ToListAsync();
+        
         employee.FullName = dto.FullName;
         employee.Position = dto.Position;
         employee.RoleId = dto.RoleId;
+        employee.Categories = categories;
+        employee.Tickets = tickets;
 
         await _context.SaveChangesAsync();
         

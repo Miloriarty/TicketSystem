@@ -18,16 +18,26 @@ public class TicketsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<TicketDto>> GetTickets() 
+    public async Task<IEnumerable<TicketDto>> GetTickets()
     {
-        return await _context.Tickets.Select(t => t.ToDto()).ToListAsync();
+        var tickets = await _context
+            .Tickets
+            .Include(e => e.Employees)
+            .Include(c => c.Categories)
+            .ToListAsync();
+        
+        return tickets.Select(t => t.ToDto()).ToList();
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<TicketDto>> GetById(int id) 
+    public async Task<ActionResult<TicketDto>> GetById(int id)
     {
-        var ticket = await _context.Tickets.FindAsync(id);
-
+        var ticket = await _context
+            .Tickets
+            .Include(e => e.Employees)
+            .Include(c => c.Categories)
+            .FirstOrDefaultAsync(e => e.Id == id);
+        
         if (ticket == null) return NotFound();
 
         return Ok(ticket.ToDto());
@@ -36,12 +46,23 @@ public class TicketsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TicketDto>> Create(TicketDto dto)
     {
+        var employees = await _context
+            .Employees
+            .Where(e => dto.EmployeesId.Contains(e.Id))
+            .ToListAsync();
+
+        var categories = await _context
+            .Categories
+            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .ToListAsync();
+        
         var ticket = new Tickets
         {
             Description = dto.Description,
             Status = dto.Status,
             CreatedAt = DateTime.UtcNow,
-            EmployeeId = dto.EmployeeId,
+            Employees = employees,
+            Categories = categories
         };
         
         _context.Tickets.Add(ticket);
@@ -60,10 +81,21 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets.FindAsync(id);
         if (ticket == null) return NotFound();
         
+        var employees = await _context
+            .Employees
+            .Where(e => dto.EmployeesId.Contains(e.Id))
+            .ToListAsync();
+
+        var categories = await _context
+            .Categories
+            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .ToListAsync();
+        
         ticket.Description = dto.Description;
         ticket.Status = dto.Status;
         ticket.CreatedAt = DateTime.UtcNow;
-        ticket.EmployeeId = dto.EmployeeId;
+        ticket.Employees = employees;
+        ticket.Categories = categories;
         
         await _context.SaveChangesAsync();  
         
