@@ -44,19 +44,20 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<EmployeeDto>> Create(EmployeeDto dto)
+    public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto dto)
     {
         var categories = await _context
             .Categories
             .Where(c => dto.CategoriesId.Contains(c.Id))
             .ToListAsync();
         
+        var date = DateTime.UtcNow;
         var employee = new Employees
         {
             FullName = dto.FullName,
             Position = dto.Position,
             RoleId = dto.RoleId,
-            StartDate = dto.StartDate,
+            StartDate = date,
             Categories = categories,
             Tickets = []
         };
@@ -72,9 +73,11 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<EmployeeDto>> Update(int id, EmployeeDto dto)
+    public async Task<ActionResult<EmployeeDto>> Update(int id, CreateEmployeeDto dto)
     {
-        var employee = await _context.Employees.FindAsync(id);
+        var employee = await _context.Employees
+            .Include(e => e.Categories)
+            .FirstOrDefaultAsync(e => e.Id == id);
         if (employee == null) return NotFound();
         
         var categories = await _context
@@ -82,16 +85,16 @@ public class EmployeesController : ControllerBase
             .Where(c => dto.CategoriesId.Contains(c.Id))
             .ToListAsync();
 
-        var tickets = await _context
-            .Tickets
-            .Where(t => dto.TicketsId.Contains(t.Id))
-            .ToListAsync();
+       // var tickets = await _context
+       //     .Tickets
+       //     .Where(t => dto.TicketsId.Contains(t.Id))
+       //     .ToListAsync();
         
         employee.FullName = dto.FullName;
         employee.Position = dto.Position;
         employee.RoleId = dto.RoleId;
         employee.Categories = categories;
-        employee.Tickets = tickets;
+        //employee.Tickets = tickets;
 
         await _context.SaveChangesAsync();
         
