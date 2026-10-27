@@ -7,9 +7,16 @@ public record TicketDto(
     string Description,
     string Status,
     DateTime CreatedAt,
-    ICollection<int> EmployeesId,
-    ICollection<int> CategoriesId
+    ICollection<int> EmployeeIds,
+    ICollection<int> CategoryIds
 );
+
+public record TicketRequest(
+    string Description,
+    string Status,
+    ICollection<int> EmployeeIds,
+    ICollection<int> CategoryIds
+); // todo Ticket создается сразу с employees id, а employee может не принять заявку
 
 public static class TicketMapper
 {

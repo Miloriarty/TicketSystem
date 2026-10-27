@@ -5,8 +5,12 @@ namespace PracticeProject.Dto;
 public record CategoryDto(
     int? Id,
     string Name,
-    ICollection<int> EmployeesId,
-    ICollection<int> TicketsId
+    ICollection<int> EmployeeIds,
+    ICollection<int> TicketIds
+);
+
+public record CreateCategoryRequest(
+        string Name
 );
 
 public static class CategoryMapper

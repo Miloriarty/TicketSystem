@@ -8,15 +8,15 @@ public record EmployeeDto(
     string Position,
     int RoleId,
     DateTime startDate,
-    ICollection<int> CategoriesId,
-    ICollection<int> TicketsId
+    ICollection<int> CategoryIds,
+    ICollection<int> TicketIds
 );
 
 public record CreateEmployeeDto(
     string FullName,
     string Position,
     int RoleId,
-    ICollection<int> CategoriesId
+    ICollection<int> CategoryIds
 );
 
 public static class EmployeeMapper

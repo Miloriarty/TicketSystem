@@ -48,7 +48,7 @@ public class EmployeesController : ControllerBase
     {
         var categories = await _context
             .Categories
-            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
         
         var date = DateTime.UtcNow;
@@ -82,12 +82,12 @@ public class EmployeesController : ControllerBase
         
         var categories = await _context
             .Categories
-            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
 
        // var tickets = await _context
        //     .Tickets
-       //     .Where(t => dto.TicketsId.Contains(t.Id))
+       //     .Where(t => dto.TicketIds.Contains(t.Id))
        //     .ToListAsync();
         
         employee.FullName = dto.FullName;

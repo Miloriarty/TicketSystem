@@ -48,12 +48,12 @@ public class TicketsController : ControllerBase
     {
         var employees = await _context
             .Employees
-            .Where(e => dto.EmployeesId.Contains(e.Id))
+            .Where(e => dto.EmployeeIds.Contains(e.Id))
             .ToListAsync();
 
         var categories = await _context
             .Categories
-            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
         
         var ticket = new Tickets
@@ -76,19 +76,23 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<TicketDto>> Update(int id, TicketDto dto)
+    public async Task<ActionResult<TicketDto>> Update(int id, TicketRequest dto)
     {
-        var ticket = await _context.Tickets.FindAsync(id);
+        var ticket = await _context.Tickets
+            .Include(t => t.Employees)
+            .Include(t => t.Categories)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
         if (ticket == null) return NotFound();
         
         var employees = await _context
             .Employees
-            .Where(e => dto.EmployeesId.Contains(e.Id))
+            .Where(e => dto.EmployeeIds.Contains(e.Id))
             .ToListAsync();
 
         var categories = await _context
             .Categories
-            .Where(c => dto.CategoriesId.Contains(c.Id))
+            .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
         
         ticket.Description = dto.Description;

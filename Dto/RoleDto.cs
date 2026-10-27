@@ -5,7 +5,7 @@ namespace PracticeProject.Dto;
 public record RoleDto(
     int? Id,
     string Name,
-    ICollection<int> EmployeesId
+    ICollection<int> EmployeeIds
     );
 
 public static class RoleMapper

@@ -51,7 +51,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<CategoryDto>> Update(int id, CategoryDto dto)
+    public async Task<ActionResult<CategoryDto>> Update(int id, CreateCategoryRequest dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category == null) return NotFound();
