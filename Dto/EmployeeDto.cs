@@ -15,6 +15,7 @@ public record EmployeeDto(
 public record CreateEmployeeDto(
     string FullName,
     string Position,
+    string? Password,
     int RoleId,
     ICollection<int> CategoryIds
 );

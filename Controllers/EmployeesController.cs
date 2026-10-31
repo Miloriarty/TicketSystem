@@ -46,6 +46,8 @@ public class EmployeesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto dto)
     {
+        if (string.IsNullOrEmpty(dto.Password)) return BadRequest("Password is required");
+
         var categories = await _context
             .Categories
             .Where(c => dto.CategoryIds.Contains(c.Id))
@@ -56,6 +58,7 @@ public class EmployeesController : ControllerBase
         {
             FullName = dto.FullName,
             Position = dto.Position,
+            Password = dto.Password, // todo хэширование
             RoleId = dto.RoleId,
             StartDate = date,
             Categories = categories,
@@ -94,6 +97,7 @@ public class EmployeesController : ControllerBase
         employee.Position = dto.Position;
         employee.RoleId = dto.RoleId;
         employee.Categories = categories;
+        if (!string.IsNullOrEmpty(dto.Password)) employee.Password = dto.Password;
         //employee.Tickets = tickets;
 
         await _context.SaveChangesAsync();

@@ -4,6 +4,7 @@ namespace PracticeProject.Dto;
 
 public record TicketDto(
     int? Id,
+    string Title,
     string Description,
     string Status,
     DateTime CreatedAt,
@@ -12,11 +13,12 @@ public record TicketDto(
 );
 
 public record TicketRequest(
+    string Title,
     string Description,
     string Status,
     ICollection<int> EmployeeIds,
     ICollection<int> CategoryIds
-); // todo Ticket создается сразу с employees id, а employee может не принять заявку
+);
 
 public static class TicketMapper
 {
@@ -24,6 +26,7 @@ public static class TicketMapper
     {
         return new TicketDto(
             ticket.Id,
+            ticket.Title,
             ticket.Description,
             ticket.Status,
             ticket.CreatedAt,

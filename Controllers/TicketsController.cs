@@ -58,6 +58,7 @@ public class TicketsController : ControllerBase
         
         var ticket = new Tickets
         {
+            Title = dto.Title,
             Description = dto.Description,
             Status = dto.Status,
             CreatedAt = DateTime.UtcNow,
@@ -95,6 +96,7 @@ public class TicketsController : ControllerBase
             .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
         
+        ticket.Title = dto.Title;
         ticket.Description = dto.Description;
         ticket.Status = dto.Status;
         ticket.CreatedAt = DateTime.UtcNow;

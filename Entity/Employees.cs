@@ -5,6 +5,7 @@ public class Employees
     public int Id { get; set; }
     public required string FullName { get; set; }
     public required string Position { get; set; }
+    public required string Password { get; set; }
     public DateTime StartDate { get; set; } = DateTime.UtcNow;
     
     public required int RoleId { get; set; }

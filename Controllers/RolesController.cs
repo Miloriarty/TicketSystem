@@ -64,4 +64,15 @@ public class RolesController : ControllerBase
         await _context.SaveChangesAsync();
         return Ok(role.ToDto());
     }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id) {
+        var role = await _context.Roles.FindAsync(id);
+
+        if (role == null) return NotFound();
+
+        _context.Roles.Remove(role);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
 }
