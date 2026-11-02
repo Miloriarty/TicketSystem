@@ -3,13 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Entity;
 using PracticeProject.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PracticeProject.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-public class EmployeesController : ControllerBase
-{
+[Authorize]
+public class EmployeesController : ControllerBase {
     private readonly AppDbContext _context;
 
     public EmployeesController(AppDbContext context)
@@ -44,6 +45,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto dto)
     {
         if (string.IsNullOrEmpty(dto.Password)) return BadRequest("Password is required");
@@ -76,6 +78,7 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult<EmployeeDto>> Update(int id, CreateEmployeeDto dto)
     {
         var employee = await _context.Employees
@@ -106,7 +109,8 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteEmployee(int id)
+    [Authorize(Roles="admin")]
+    public async Task<ActionResult> Delete(int id)
     {
         var employee = await _context.Employees.FindAsync(id);
 

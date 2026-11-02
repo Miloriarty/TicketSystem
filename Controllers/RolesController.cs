@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
 using PracticeProject.Entity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PracticeProject.Controllers;
 
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RolesController : ControllerBase
 {
     private readonly AppDbContext _context;

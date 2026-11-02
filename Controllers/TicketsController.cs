@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
 using PracticeProject.Entity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PracticeProject.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TicketsController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -17,7 +19,7 @@ public class TicketsController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
+    [HttpGet] // may be admin shouldn't see all tickets
     public async Task<IEnumerable<TicketDto>> GetTickets()
     {
         var tickets = await _context
@@ -25,7 +27,7 @@ public class TicketsController : ControllerBase
             .Include(e => e.Employees)
             .Include(c => c.Categories)
             .ToListAsync();
-        
+
         return tickets.Select(t => t.ToDto()).ToList();
     }
 
@@ -37,13 +39,14 @@ public class TicketsController : ControllerBase
             .Include(e => e.Employees)
             .Include(c => c.Categories)
             .FirstOrDefaultAsync(e => e.Id == id);
-        
+
         if (ticket == null) return NotFound();
 
         return Ok(ticket.ToDto());
     }
 
     [HttpPost]
+    [Authorize(Roles="manager")]
     public async Task<ActionResult<TicketDto>> Create(TicketDto dto)
     {
         var employees = await _context
@@ -55,7 +58,7 @@ public class TicketsController : ControllerBase
             .Categories
             .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
-        
+
         var ticket = new Tickets
         {
             Title = dto.Title,
@@ -65,15 +68,15 @@ public class TicketsController : ControllerBase
             Employees = employees,
             Categories = categories
         };
-        
+
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
-            nameof(GetById),
-            new {id = ticket.Id},
-            dto
-        );
+                nameof(GetById),
+                new {id = ticket.Id},
+                dto
+                );
     }
 
     [HttpPut("{id}")]
@@ -85,7 +88,7 @@ public class TicketsController : ControllerBase
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (ticket == null) return NotFound();
-        
+
         var employees = await _context
             .Employees
             .Where(e => dto.EmployeeIds.Contains(e.Id))
@@ -95,20 +98,21 @@ public class TicketsController : ControllerBase
             .Categories
             .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
-        
+
         ticket.Title = dto.Title;
         ticket.Description = dto.Description;
         ticket.Status = dto.Status;
         ticket.CreatedAt = DateTime.UtcNow;
         ticket.Employees = employees;
         ticket.Categories = categories;
-        
+
         await _context.SaveChangesAsync();  
-        
+
         return Ok(ticket.ToDto());
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles="manager")]
     public async Task<ActionResult> Delete(int id) 
     {
         var ticket = await _context.Tickets.FindAsync(id);

@@ -3,11 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
 using PracticeProject.Entity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PracticeProject.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class CategoriesController : ControllerBase
 {
     private readonly AppDbContext _context;
@@ -34,11 +36,12 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CategoryDto>> Create(CategoryDto categoryDto)
+    [Authorize(Roles="admin")]
+    public async Task<ActionResult<CategoryDto>> Create(CreateCategoryRequest dto)
     {
         var category = new Categories
         {
-            Name = categoryDto.Name
+            Name = dto.Name
         };
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
@@ -46,7 +49,7 @@ public class CategoriesController : ControllerBase
         return CreatedAtAction(
             nameof(GetById),
             new { id = category.Id },
-            categoryDto
+            category.ToDto()
         );
     }
 
@@ -64,6 +67,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult> Delete(int id)
     {
         var category = await _context.Categories.FindAsync(id);
