@@ -4,6 +4,7 @@ using PracticeProject.Data;
 using PracticeProject.Dto;
 using PracticeProject.Entity;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace PracticeProject.Controllers;
 
@@ -80,6 +81,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles="manager, employee")]
     public async Task<ActionResult<TicketDto>> Update(int id, TicketRequest dto)
     {
         var ticket = await _context.Tickets
@@ -98,6 +100,12 @@ public class TicketsController : ControllerBase
             .Categories
             .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
+
+        if (User.IsInRole("employee")) {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            if (!ticket.Employees.Any(e => e.Id == userId)) return Forbid();
+        }
 
         ticket.Title = dto.Title;
         ticket.Description = dto.Description;

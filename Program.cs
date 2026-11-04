@@ -2,8 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using PracticeProject.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IPasswordHasher<Employees>, PasswordHasher<Employees>>();
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>

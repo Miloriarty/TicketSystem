@@ -54,15 +54,16 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult<CategoryDto>> Update(int id, CreateCategoryRequest dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category == null) return NotFound();
-        
+
         category.Name = dto.Name;
-        
+
         await _context.SaveChangesAsync();
-        
+
         return Ok(category.ToDto());
     }
 

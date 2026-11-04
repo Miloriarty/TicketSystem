@@ -4,6 +4,7 @@ using PracticeProject.Data;
 using PracticeProject.Entity;
 using PracticeProject.Dto;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace PracticeProject.Controllers;
 
@@ -12,10 +13,12 @@ namespace PracticeProject.Controllers;
 [Authorize]
 public class EmployeesController : ControllerBase {
     private readonly AppDbContext _context;
+    private readonly IPasswordHasher<Employees> _hasher;
 
-    public EmployeesController(AppDbContext context)
+    public EmployeesController(AppDbContext context, IPasswordHasher<Employees> hasher)
     {
         _context = context;
+        _hasher = hasher;
     }
 
     [HttpGet]
@@ -60,12 +63,14 @@ public class EmployeesController : ControllerBase {
         {
             FullName = dto.FullName,
             Position = dto.Position,
-            Password = dto.Password, // todo хэширование
+            Password = "",
             RoleId = dto.RoleId,
             StartDate = date,
             Categories = categories,
             Tickets = []
         };
+
+        employee.Password = _hasher.HashPassword(employee, dto.Password);
         
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
@@ -73,7 +78,7 @@ public class EmployeesController : ControllerBase {
         return CreatedAtAction(
             nameof(GetById),
             new { id = employee.Id },
-            dto
+            employee.ToDto()
         );
     }
 
@@ -100,7 +105,7 @@ public class EmployeesController : ControllerBase {
         employee.Position = dto.Position;
         employee.RoleId = dto.RoleId;
         employee.Categories = categories;
-        if (!string.IsNullOrEmpty(dto.Password)) employee.Password = dto.Password;
+        if (!string.IsNullOrEmpty(dto.Password)) employee.Password = _hasher.HashPassword(employee, dto.Password);
         //employee.Tickets = tickets;
 
         await _context.SaveChangesAsync();

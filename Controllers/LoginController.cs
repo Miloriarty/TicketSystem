@@ -2,10 +2,12 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
+using PracticeProject.Entity;
 
 namespace PracticeProject.Controllers;
 
@@ -14,9 +16,11 @@ namespace PracticeProject.Controllers;
 [AllowAnonymous]
 public class LoginController : ControllerBase {
     private readonly AppDbContext _context;
+    private readonly IPasswordHasher<Employees> _hasher;
 
-    public LoginController(AppDbContext context) {
+    public LoginController(AppDbContext context, IPasswordHasher<Employees> hasher) {
         _context = context;
+        _hasher = hasher;
     }
 
     [HttpPost()]
@@ -28,7 +32,15 @@ public class LoginController : ControllerBase {
             .FirstOrDefaultAsync(e => e.FullName == request.FullName);
 
         if (employee == null) return NotFound();
-        if (employee.Password != request.Password) return Unauthorized();
+        
+        var result = _hasher.VerifyHashedPassword(employee, employee.Password, request.Password);
+        if (result == PasswordVerificationResult.Failed) return Unauthorized();
+
+        if (result == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            employee.Password = _hasher.HashPassword(employee, request.Password);
+            await _context.SaveChangesAsync();
+        }
 
         var claims = new List<Claim>
         {
@@ -39,7 +51,11 @@ public class LoginController : ControllerBase {
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                new AuthenticationProperties {IsPersistent = true}
+        );
         return Ok(new AuthUserDto(employee.Id, employee.FullName, employee.Role.Name));
     }
 

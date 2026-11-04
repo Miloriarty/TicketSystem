@@ -37,6 +37,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles="admin")] // специально сделано на admin, иначе может изменить любой зарегистрированный пользователь
     public async Task<ActionResult<RoleDto>> Create(RoleDto dto)
     {
         var role = new Roles
@@ -55,6 +56,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult<RoleDto>> Update(int id, RoleDto dto)
     {
         var role = await _context.Roles.FindAsync(id);
@@ -68,6 +70,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles="admin")]
     public async Task<ActionResult> Delete(int id) {
         var role = await _context.Roles.FindAsync(id);
 
