@@ -110,7 +110,6 @@ public class TicketsController : ControllerBase
         ticket.Title = dto.Title;
         ticket.Description = dto.Description;
         ticket.Status = dto.Status;
-        ticket.CreatedAt = DateTime.UtcNow;
         ticket.Employees = employees;
         ticket.Categories = categories;
 
