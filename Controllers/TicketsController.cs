@@ -23,12 +23,18 @@ public class TicketsController : ControllerBase
     [HttpGet] // may be admin shouldn't see all tickets
     public async Task<IEnumerable<TicketDto>> GetTickets()
     {
-        var tickets = await _context
+        var query = _context
             .Tickets
             .Include(e => e.Employees)
             .Include(c => c.Categories)
-            .ToListAsync();
+            .AsQueryable();
+        
+        if (User.IsInRole("employee")) {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            query = query.Where(t => t.Employees.Any(e => e.Id == userId));
+        }
 
+        var tickets = await query.ToListAsync();
         return tickets.Select(t => t.ToDto()).ToList();
     }
 
@@ -115,7 +121,7 @@ public class TicketsController : ControllerBase
 
             if (!ticket.Employees.Any(e => e.Id == userId)) return Forbid();
         }
-        
+
         if (categories.Count != dto.CategoryIds.Distinct().Count()) {
             return BadRequest("Unknown category");
         }
@@ -141,7 +147,7 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets.FindAsync(id);
 
         if (ticket == null) return NotFound();
-        
+
         if (ticket.Status == "New" || ticket.Status == "progress") {
             return BadRequest("Cant delete ticket because it is new or in progress");
         }
