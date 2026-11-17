@@ -52,6 +52,7 @@ public class TicketsController : ControllerBase
     {
         var employees = await _context
             .Employees
+            .Include(e => e.Categories)
             .Where(e => dto.EmployeeIds.Contains(e.Id))
             .ToListAsync();
 
@@ -64,11 +65,18 @@ public class TicketsController : ControllerBase
         {
             Title = dto.Title,
             Description = dto.Description,
-            Status = dto.Status,
+            Status = "New",
             CreatedAt = DateTime.UtcNow,
             Employees = employees,
             Categories = categories
         };
+
+        if (categories.Count != dto.CategoryIds.Distinct().Count()) {
+            return BadRequest("Unknown category");
+        }
+        if (!IsAllCategoriesCovered(employees, categories)) {
+            return BadRequest("Not all categories covered");
+        }
 
         _context.Tickets.Add(ticket);
         await _context.SaveChangesAsync();
@@ -76,7 +84,7 @@ public class TicketsController : ControllerBase
         return CreatedAtAction(
                 nameof(GetById),
                 new {id = ticket.Id},
-                dto
+                ticket.ToDto()
                 );
     }
 
@@ -93,6 +101,7 @@ public class TicketsController : ControllerBase
 
         var employees = await _context
             .Employees
+            .Include(e => e.Categories)
             .Where(e => dto.EmployeeIds.Contains(e.Id))
             .ToListAsync();
 
@@ -105,6 +114,13 @@ public class TicketsController : ControllerBase
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             if (!ticket.Employees.Any(e => e.Id == userId)) return Forbid();
+        }
+        
+        if (categories.Count != dto.CategoryIds.Distinct().Count()) {
+            return BadRequest("Unknown category");
+        }
+        if (!IsAllCategoriesCovered(employees, categories)) {
+            return BadRequest("Not all categories covered");
         }
 
         ticket.Title = dto.Title;
@@ -125,10 +141,26 @@ public class TicketsController : ControllerBase
         var ticket = await _context.Tickets.FindAsync(id);
 
         if (ticket == null) return NotFound();
+        
+        if (ticket.Status == "New" || ticket.Status == "progress") {
+            return BadRequest("Cant delete ticket because it is new or in progress");
+        }
+
         _context.Tickets.Remove(ticket);
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private static bool IsAllCategoriesCovered(ICollection<Employees> employees, ICollection<Categories> categories) {
+        if (categories.Count == 0) return false;
+
+        var covered = employees
+            .SelectMany(e => e.Categories)
+            .Select(c => c.Id)
+            .ToHashSet();
+
+        return categories.All(c => covered.Contains(c.Id));
     }
 
 }
