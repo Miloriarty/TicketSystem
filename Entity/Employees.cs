@@ -8,8 +8,7 @@ public class Employees
     public required string Password { get; set; }
     public DateTime StartDate { get; set; } = DateTime.UtcNow;
     
-    public required int RoleId { get; set; }
-    public Roles Role { get; set; } = null!;
+    public required string Role { get; set; }
 
     public ICollection<Categories> Categories { get; set; } = [];
 

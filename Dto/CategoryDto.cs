@@ -4,9 +4,7 @@ namespace PracticeProject.Dto;
 
 public record CategoryDto(
     int? Id,
-    string Name,
-    ICollection<int> EmployeeIds,
-    ICollection<int> TicketIds
+    string Name
 );
 
 public record CreateCategoryRequest(
@@ -19,9 +17,7 @@ public static class CategoryMapper
     {
         return new CategoryDto(
             category.Id,
-            category.Name,
-            category.Employees.Select(e => e.Id).ToList(),
-            category.Tickets.Select(t => t.Id).ToList()
-       );
+            category.Name
+        );
     }
 }

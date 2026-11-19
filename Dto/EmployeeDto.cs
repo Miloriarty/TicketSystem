@@ -6,7 +6,7 @@ public record EmployeeDto(
     int? Id,
     string FullName,
     string Position,
-    int RoleId,
+    string Role,
     DateTime startDate,
     ICollection<int> CategoryIds,
     ICollection<int> TicketIds
@@ -16,7 +16,7 @@ public record CreateEmployeeDto(
     string FullName,
     string Position,
     string? Password,
-    int RoleId,
+    string Role,
     ICollection<int> CategoryIds
 );
 
@@ -28,7 +28,7 @@ public static class EmployeeMapper
             employee.Id,
             employee.FullName,
             employee.Position,
-            employee.RoleId,
+            employee.Role,
             employee.StartDate,
             employee.Categories.Select(c => c.Id).ToList(),
             employee.Tickets.Select(t => t.Id).ToList()

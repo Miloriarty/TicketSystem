@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
+using PracticeProject.Auth;
 using PracticeProject.Entity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -29,7 +30,7 @@ public class TicketsController : ControllerBase
             .Include(c => c.Categories)
             .AsQueryable();
         
-        if (User.IsInRole("employee")) {
+        if (User.IsInRole(UserRoles.Employee)) {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             query = query.Where(t => t.Employees.Any(e => e.Id == userId));
         }
@@ -53,7 +54,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles="manager")]
+    [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult<TicketDto>> Create(TicketDto dto)
     {
         var employees = await _context
@@ -95,7 +96,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles="manager, employee")]
+    [Authorize(Roles = UserRoles.Manager + "," + UserRoles.Employee)]
     public async Task<ActionResult<TicketDto>> Update(int id, TicketRequest dto)
     {
         var ticket = await _context.Tickets
@@ -116,7 +117,7 @@ public class TicketsController : ControllerBase
             .Where(c => dto.CategoryIds.Contains(c.Id))
             .ToListAsync();
 
-        if (User.IsInRole("employee")) {
+        if (User.IsInRole(UserRoles.Employee)) {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             if (!ticket.Employees.Any(e => e.Id == userId)) return Forbid();
@@ -141,7 +142,7 @@ public class TicketsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles="manager")]
+    [Authorize(Roles = UserRoles.Manager)]
     public async Task<ActionResult> Delete(int id) 
     {
         var ticket = await _context.Tickets.FindAsync(id);

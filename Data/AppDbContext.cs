@@ -11,28 +11,29 @@ public class AppDbContext : DbContext
 
     public DbSet<Categories> Categories => Set<Categories>();
     public DbSet<Employees> Employees => Set<Employees>();
-    public DbSet<Roles> Roles => Set<Roles>();
     public DbSet<Tickets> Tickets => Set<Tickets>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Employees -> Roles
-        modelBuilder.Entity<Employees>()
-            .HasOne(e => e.Role)
-            .WithMany(r => r.Employees)
-            .HasForeignKey(e => e.RoleId);
-
-        // Employees <-> Categories
+        // Employees -> Categories
         modelBuilder.Entity<Employees>()
             .HasMany(e => e.Categories)
-            .WithMany(c => c.Employees);
+            .WithMany()
+            .UsingEntity(
+                "CategoriesEmployees",
+                r => r.HasOne(typeof(Categories)).WithMany().HasForeignKey("CategoriesId"),
+                l => l.HasOne(typeof(Employees)).WithMany().HasForeignKey("EmployeesId"));
 
-        // Tickets <-> Categories
+        // Tickets -> Categories
         modelBuilder.Entity<Tickets>()
             .HasMany(t => t.Categories)
-            .WithMany(c => c.Tickets);
+            .WithMany()
+            .UsingEntity(
+                "CategoriesTickets",
+                r => r.HasOne(typeof(Categories)).WithMany().HasForeignKey("CategoriesId"),
+                l => l.HasOne(typeof(Tickets)).WithMany().HasForeignKey("TicketsId"));
 
         // Tickets <-> Employees
         modelBuilder.Entity<Tickets>()

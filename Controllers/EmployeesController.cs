@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Entity;
 using PracticeProject.Dto;
+using PracticeProject.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -48,10 +49,11 @@ public class EmployeesController : ControllerBase {
     }
 
     [HttpPost]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult<EmployeeDto>> Create(CreateEmployeeDto dto)
     {
         if (string.IsNullOrEmpty(dto.Password)) return BadRequest("Password is required");
+        if (!UserRoles.IsValid(dto.Role)) return BadRequest("Unknown role");
 
         var categories = await _context
             .Categories
@@ -64,7 +66,7 @@ public class EmployeesController : ControllerBase {
             FullName = dto.FullName,
             Position = dto.Position,
             Password = "",
-            RoleId = dto.RoleId,
+            Role = dto.Role,
             StartDate = date,
             Categories = categories,
             Tickets = []
@@ -83,13 +85,14 @@ public class EmployeesController : ControllerBase {
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult<EmployeeDto>> Update(int id, CreateEmployeeDto dto)
     {
         var employee = await _context.Employees
             .Include(e => e.Categories)
             .FirstOrDefaultAsync(e => e.Id == id);
         if (employee == null) return NotFound();
+        if (!UserRoles.IsValid(dto.Role)) return BadRequest("Unknown role");
         
         var categories = await _context
             .Categories
@@ -103,7 +106,7 @@ public class EmployeesController : ControllerBase {
         
         employee.FullName = dto.FullName;
         employee.Position = dto.Position;
-        employee.RoleId = dto.RoleId;
+        employee.Role = dto.Role;
         employee.Categories = categories;
         if (!string.IsNullOrEmpty(dto.Password)) employee.Password = _hasher.HashPassword(employee, dto.Password);
         //employee.Tickets = tickets;
@@ -114,7 +117,7 @@ public class EmployeesController : ControllerBase {
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult> Delete(int id)
     {
         var employee = await _context.Employees.FindAsync(id);

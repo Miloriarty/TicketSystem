@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PracticeProject.Data;
 using PracticeProject.Dto;
+using PracticeProject.Auth;
 using PracticeProject.Entity;
 using Microsoft.AspNetCore.Authorization;
 
@@ -36,7 +37,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult<CategoryDto>> Create(CreateCategoryRequest dto)
     {
         var category = new Categories
@@ -54,7 +55,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult<CategoryDto>> Update(int id, CreateCategoryRequest dto)
     {
         var category = await _context.Categories.FindAsync(id);
@@ -68,7 +69,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles="admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public async Task<ActionResult> Delete(int id)
     {
         var category = await _context.Categories.FindAsync(id);
