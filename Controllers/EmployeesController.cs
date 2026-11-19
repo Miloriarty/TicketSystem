@@ -23,18 +23,24 @@ public class EmployeesController : ControllerBase {
     }
 
     [HttpGet]
+    [Authorize(Roles = UserRoles.Manager + "," + UserRoles.Admin)]
     public async Task<IEnumerable<EmployeeDto>> GetEmployees()
     {
-        var employees = await _context
+        var query = _context
             .Employees
             .Include(e => e.Categories)
             .Include(t => t.Tickets)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (User.IsInRole(UserRoles.Manager)) {
+            query = query.Where(e => e.Role == UserRoles.Employee);
+        }
         
-        return employees.Select(e => e.ToDto()).ToList();
+        return await query.Select(e => e.ToDto()).ToListAsync();
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = UserRoles.Manager + "," + UserRoles.Admin)]
     public async Task<ActionResult<EmployeeDto>> GetById(int id)
     {
         var employee = await _context
@@ -44,6 +50,9 @@ public class EmployeesController : ControllerBase {
             .FirstOrDefaultAsync(e => e.Id == id);
         
         if (employee == null) return NotFound();
+        if (User.IsInRole(UserRoles.Manager)) {
+            if (employee.Role != UserRoles.Employee) return Forbid();
+        }
 
         return Ok(employee.ToDto());
     }
